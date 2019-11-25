@@ -130,7 +130,7 @@ public class AnimalCrossing {
                     + "\nAccount Balance: $" + result.getString(1));
             String item = in.nextLine();
             if (isValidItem(item)) {
-              CallableStatement buyItem = con.prepareCall("{call buyItem(?,?)}");
+              PreparedStatement buyItem = con.prepareCall("SELECT buyItem(?,?);");
               buyItem.setString(1, item);
               buyItem.setString(2, user);
               ResultSet rs = buyItem.executeQuery();
