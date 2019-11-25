@@ -36,21 +36,27 @@ DELIMITER $$
 CREATE TRIGGER payUsers
 AFTER */
 
-DROP PROCEDURE IF EXISTS buyItem;
+DROP FUNCTION IF EXISTS buyItem;
 DELIMITER $$
-CREATE PROCEDURE buyItem
+CREATE FUNCTION buyItem
 (
 	item		VARCHAR(40),
     usernm	VARCHAR(40)
 )
+RETURNS VARCHAR(40)
+NOT DETERMINISTIC
+READS SQL DATA
 BEGIN
 	DECLARE accountBal INT;
     DECLARE itemCost INT;
     SET accountBal = (SELECT account_bal FROM ac_user WHERE username = usernm);
     SET itemCost = (SELECT cost FROM item WHERE itemName = item);
-	IF itemCost < accountBal THEN 
+	IF itemCost <= accountBal THEN 
         INSERT INTO userItems VALUES (usernm, item);
         UPDATE ac_user SET account_bal = accountBal - itemCost WHERE username = usernm;
+        RETURN "Item bought!";
+    ELSE 
+		RETURN "You don't have enough money!";
 	END IF;
 END$$
 DELIMITER ;

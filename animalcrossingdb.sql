@@ -24,8 +24,6 @@ CREATE TABLE color
 );
 INSERT INTO color VALUES ("red"), ("plaid"), ("white");
 
-SELECT * FROM style;
-SELECT * FROM color;
 -- USE ON DEFAULT
 CREATE TABLE villager
 (
@@ -47,18 +45,14 @@ CREATE TABLE item
 	itemName	VARCHAR(40)		PRIMARY KEY,
     cost 		INT				NOT NULL,
     style		VARCHAR(40),
-    color		VARCHAR(40),
     CONSTRAINT item_style_fk FOREIGN KEY (style) REFERENCES style(style)
-		ON UPDATE SET NULL
-        ON DELETE SET NULL,
-	CONSTRAINT item_color_fk FOREIGN KEY (color) REFERENCES color(color)
 		ON UPDATE SET NULL
         ON DELETE SET NULL
 );
-INSERT INTO item VALUES ("tshirt", 100, "goth", "plaid"), 
-						("pants", 150, "cute", "red"), 
-                        ("couch", 500, "goth", "red"),
-                        ("chair", 400, "cute", "plaid");
+INSERT INTO item VALUES ("tshirt", 100, "goth"), 
+						("pants", 150, "cute"), 
+                        ("couch", 500, "goth"),
+                        ("chair", 400, "cute");
 
 CREATE TABLE clothing
 (
@@ -73,12 +67,16 @@ INSERT INTO clothing VALUES ("tshirt", 40), ("pants", 50);
 CREATE TABLE furniture
 (
 	furnitureName	VARCHAR(40),
-    area			INT,
+    color1			VARCHAR(40),
+    color2			VARCHAR(40),
     CONSTRAINT furniture_item_fk FOREIGN KEY (furnitureName) REFERENCES item(itemName)
+		ON UPDATE CASCADE
+        ON DELETE CASCADE,
+    CONSTRAINT furniture_color_fk FOREIGN KEY (color1) REFERENCES color(color)
 		ON UPDATE CASCADE
         ON DELETE CASCADE
 );
-INSERT INTO furniture VALUES ("couch", 6), ("chair", 1);
+INSERT INTO furniture VALUES ("couch", "red", "plaid"), ("chair", "white", "red");
 
 CREATE TABLE userItems
 (
@@ -87,16 +85,6 @@ CREATE TABLE userItems
     CONSTRAINT ui_user_fk FOREIGN KEY (username) REFERENCES ac_user(username),
     CONSTRAINT ui_item_fk FOREIGN KEY (item) REFERENCES item(itemName)
 );
-
-CREATE TABLE villagerItems
-(
-	villager 	VARCHAR(255),
-    item		VARCHAR(255),
-    fromUser	VARCHAR(255),
-    CONSTRAINT vi_user_fk FOREIGN KEY (fromUser) REFERENCES ac_user(username),
-    CONSTRAINT vi_item_fk FOREIGN KEY (item) REFERENCES item(itemName),
-    CONSTRAINT vi_villager_fk FOREIGN KEY (villager) REFERENCES villager(villager_name)
-)
 
 
 
