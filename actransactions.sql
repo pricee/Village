@@ -1,4 +1,4 @@
-USE animalCrossing;
+USE village;
 -- returns true if login successful, false if unsuccessful
 DROP FUNCTION IF EXISTS login;
 DELIMITER $$
@@ -10,7 +10,7 @@ CREATE FUNCTION login
 RETURNS BOOLEAN
 DETERMINISTIC
 BEGIN
-	RETURN (SELECT pword FROM ac_user WHERE usernm = username) = pass;
+	RETURN (SELECT pword FROM users WHERE usernm = username) = pass;
 END$$
 DELIMITER ;
 
@@ -26,7 +26,7 @@ CREATE PROCEDURE addUser
     characterName	VARCHAR(40)
 )
 BEGIN
-	INSERT INTO ac_user VALUES (username, pword, characterName, 0);
+	INSERT INTO users VALUES (username, pword, characterName, 0);
 END$$
 DELIMITER ;
 
@@ -49,11 +49,11 @@ READS SQL DATA
 BEGIN
 	DECLARE accountBal INT;
     DECLARE itemCost INT;
-    SET accountBal = (SELECT account_bal FROM ac_user WHERE username = usernm);
+    SET accountBal = (SELECT account_bal FROM users WHERE username = usernm);
     SET itemCost = (SELECT cost FROM item WHERE itemName = item);
 	IF itemCost <= accountBal THEN 
         INSERT INTO userItems VALUES (usernm, item);
-        UPDATE ac_user SET account_bal = accountBal - itemCost WHERE username = usernm;
+        UPDATE users SET account_bal = accountBal - itemCost WHERE username = usernm;
         RETURN "Item bought!";
     ELSE 
 		RETURN "You don't have enough money!";

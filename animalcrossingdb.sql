@@ -1,8 +1,8 @@
-DROP DATABASE IF EXISTS animalCrossing;
-CREATE DATABASE animalCrossing;
-USE animalCrossing;
+DROP DATABASE IF EXISTS village;
+CREATE DATABASE village;
+USE village;
 
-CREATE TABLE ac_user
+CREATE TABLE users
 (
 	username			VARCHAR(40)		PRIMARY KEY,
     pword				VARCHAR(40)		NOT NULL,
@@ -10,7 +10,7 @@ CREATE TABLE ac_user
     account_bal			INT 			NOT NULL,
     CHECK (account_bal >= 0)
 );
-INSERT INTO ac_user VALUES ("emma", "1234", "thepriceisright", 1000), ("emily", "5678", "emily", 2000);
+INSERT INTO users VALUES ("emma", "1234", "thepriceisright", 1000), ("emily", "5678", "emily", 2000);
 
 CREATE TABLE style
 (
@@ -82,7 +82,7 @@ CREATE TABLE userItems
 (
 	username 	VARCHAR(255),
     item		VARCHAR(255),
-    CONSTRAINT ui_user_fk FOREIGN KEY (username) REFERENCES ac_user(username),
+    CONSTRAINT ui_user_fk FOREIGN KEY (username) REFERENCES users(username),
     CONSTRAINT ui_item_fk FOREIGN KEY (item) REFERENCES item(itemName)
 );
 

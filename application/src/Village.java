@@ -8,7 +8,7 @@ import java.util.ArrayList;
 import java.util.List;
 import java.util.Scanner;
 
-public class AnimalCrossing {
+public class Village {
   private static Connection con;
   private static Scanner in;
   private static String user;
@@ -27,7 +27,7 @@ public class AnimalCrossing {
       String username = "root";
       String password = "H0ppySandy!";
       con = DriverManager.getConnection(
-              "jdbc:mysql://localhost:3306/animalCrossing?", username, password);
+              "jdbc:mysql://localhost:3306/village?", username, password);
 
       setup();
       System.out.println("Welcome back!");
@@ -46,7 +46,7 @@ public class AnimalCrossing {
     String command;
     boolean signedin = false;
     while (!signedin) {
-      System.out.println("...\nWelcome to Animal Crossing!\nCommands:\n"
+      System.out.println("...\nWelcome to Village!\nCommands:\n"
               + "[NEW] to create a new account\n"
               + "[LOGIN] to log in with an existing account\n"
               + "[Q] to exit the game");
@@ -110,8 +110,9 @@ public class AnimalCrossing {
   private static void gameplay() {
     String command;
     boolean run = true;
+    System.out.println("...");
     while (run) {
-      System.out.println("...\nWhat would you like to do?\nCommands:\n"
+      System.out.println("What would you like to do?\nCommands:\n"
               + "[BUY] to buy an item\n"
               + "[GIVE] to give an item to a villager\n"
               + "[ACCOUNT] to get account info\n"
@@ -119,30 +120,8 @@ public class AnimalCrossing {
       command = in.nextLine();
       switch(command.toLowerCase()) {
         case "buy":
-          // buy item
           printAllItems();
-          try {
-            PreparedStatement accountBal =
-                    con.prepareStatement("SELECT account_bal FROM ac_user WHERE username = \'" + user + "\';");
-            ResultSet result = accountBal.executeQuery();
-            result.next();
-            System.out.println("\nWhat would you like to buy?"
-                    + "\nAccount Balance: $" + result.getString(1));
-            String item = in.nextLine();
-            if (isValidItem(item)) {
-              PreparedStatement buyItem = con.prepareCall("SELECT buyItem(?,?);");
-              buyItem.setString(1, item);
-              buyItem.setString(2, user);
-              ResultSet rs = buyItem.executeQuery();
-              rs.next();
-              System.out.println(rs.getString(1));
-            }
-            else {
-              System.out.println("Item doesn't exist!");
-            }
-          } catch (SQLException e) {
-            e.printStackTrace();
-          }
+          buyItems();
           break;
         case "give":
           // give item to a villager
@@ -151,22 +130,7 @@ public class AnimalCrossing {
           // get money
           break;
         case "account":
-          // get info on yourself
-          try {
-            System.out.println("Account Information:");
-            PreparedStatement account =
-                    con.prepareStatement("SELECT * FROM ac_user WHERE username = \'" + user + "\';");
-            ResultSet result = account.executeQuery();
-            result.next();
-            System.out.println("Username: " + result.getString(1));
-            System.out.println("Character Name: " + result.getString(3));
-            System.out.println("Account Balance: " + result.getString(4));
-            //
-            // print out what they own
-            //
-          } catch (SQLException e) {
-            e.printStackTrace();
-          }
+          printAccountInfo();
           break;
         case "villagers":
           // see info on all the villagers
@@ -177,6 +141,8 @@ public class AnimalCrossing {
         default:
           System.out.println("Oh no! Invalid command! Please try again.");
       }
+      System.out.println("...\nPress enter to continue");
+      in.nextLine();
     }
   }
 
@@ -193,9 +159,9 @@ public class AnimalCrossing {
       while (result.next()) {
         allFurniture.add(result.getString(1)
                 + " -- $" + result.getString(2)
-                + ", Color1: " + result.getString(3)
-                + ", Color2: " + result.getString(4)
-                + ", Style: " + result.getString(5));
+                + " | Color1: " + result.getString(3)
+                + " | Color2: " + result.getString(4)
+                + " | Style: " + result.getString(5));
       }
       for (String s : allFurniture) {
         System.out.print(s + "\n");
@@ -209,8 +175,8 @@ public class AnimalCrossing {
       while (result.next()) {
         allClothing.add(result.getString(1)
                 + " -- $" + result.getString(2)
-                + ", Length: " + result.getString(3)
-                + ", Style: " + result.getString(4));
+                + " | Length: " + result.getString(3)
+                + " | Style: " + result.getString(4));
       }
       for (String s : allClothing) {
         System.out.print(s + "\n");
@@ -220,7 +186,31 @@ public class AnimalCrossing {
     }
   }
 
-  // fix
+  private static void buyItems() {
+    try {
+      PreparedStatement accountBal =
+              con.prepareStatement("SELECT account_bal FROM users WHERE username = \'" + user + "\';");
+      ResultSet result = accountBal.executeQuery();
+      result.next();
+      System.out.println("\nWhat would you like to buy?"
+              + "\nAccount Balance: $" + result.getString(1));
+      String item = in.nextLine();
+      if (isValidItem(item)) {
+        PreparedStatement buyItem = con.prepareCall("SELECT buyItem(?,?);");
+        buyItem.setString(1, item);
+        buyItem.setString(2, user);
+        ResultSet rs = buyItem.executeQuery();
+        rs.next();
+        System.out.println(rs.getString(1));
+      }
+      else {
+        System.out.println("Item doesn't exist!");
+      }
+    } catch (SQLException e) {
+      e.printStackTrace();
+    }
+  }
+
   private static boolean isValidItem(String item) {
     try {
       PreparedStatement items = con.prepareStatement(
@@ -235,5 +225,50 @@ public class AnimalCrossing {
       e.printStackTrace();
     }
     return false;
+  }
+
+  private static void printAccountInfo() {
+    try {
+      System.out.println("Account Information:");
+      PreparedStatement account =
+              con.prepareStatement("SELECT * FROM users WHERE username = "
+                      + "\'" + user + "\';");
+      ResultSet result = account.executeQuery();
+      result.next();
+      System.out.println("Username: " + result.getString(1));
+      System.out.println("Character Name: " + result.getString(3));
+      System.out.println("Account Balance: " + result.getString(4));
+
+      // print out what they own
+      PreparedStatement furniture =
+              con.prepareStatement("\n"
+                      + "SELECT item, style, color1, color2 FROM userItems "
+                      + "JOIN item ON itemName = item "
+                      + "JOIN furniture ON furnitureName = item "
+                      + "WHERE username = \'" + user + "\';");
+      ResultSet userFurniture = furniture.executeQuery();
+      System.out.println("Here is all the furniture you own:");
+      while (userFurniture.next()) {
+        System.out.println(userFurniture.getString(1)
+                + " -- Style: " + userFurniture.getString(2)
+                + " | Color1: " + userFurniture.getString(3)
+                + " | Color2: " + userFurniture.getString(4));
+      }
+      PreparedStatement clothing =
+              con.prepareStatement("\n"
+                      + "SELECT item, style, length FROM userItems "
+                      + "JOIN item ON itemName = item "
+                      + "JOIN clothing ON clothingName = item "
+                      + "WHERE username = \'" + user + "\';");
+      ResultSet userClothing = clothing.executeQuery();
+      System.out.println("Here is all the clothing you own:");
+      while (userClothing.next()) {
+        System.out.println(userClothing.getString(1)
+                + " -- Style: " + userClothing.getString(2)
+                + " | Length: " + userClothing.getString(3));
+      }
+    } catch (SQLException e) {
+      e.printStackTrace();
+    }
   }
 }
