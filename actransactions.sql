@@ -73,44 +73,35 @@ RETURNS BOOLEAN
 DETERMINISTIC
 BEGIN
 	DECLARE itemStyle VARCHAR(255);
-    DECLARE itemColor VARCHAR(255);
+    DECLARE itemColor1 VARCHAR(255);
+    DECLARE itemColor2 VARCHAR(255);
     DECLARE villagerStyle VARCHAR(255);
     DECLARE villagerColor VARCHAR(255);
     SET itemStyle = (SELECT style FROM item WHERE item = itemName);
-    SET itemColor = (SELECT color FROM item WHERE item = itemName);
+    SET itemColor1 = (SELECT color1 FROM item JOIN furniture ON itemName = furnitureName WHERE item = itemName);
+    SET itemColor2 = (SELECT color2 FROM item JOIN furniture ON itemName = furnitureName WHERE item = itemName);
     SET villagerStyle = (SELECT preferred_style FROM villager WHERE villagerName = villager_name);
     SET villagerColor = (SELECT preferred_color FROM villager WHERE villagerName = villager_name);
-    RETURN itemStyle = villagerStyle OR itemColor = villagerColor;
+    RETURN itemStyle = villagerStyle OR itemColor1 = villagerColor OR itemColor2 = villagerColor;
 END$$
 DELIMITER ;
 
--- automatically runs villagerLikes when item is given to villager
-/*DROP TRIGGER IF EXISTS itemGivenToVillager;
+-- gives item to villager
+DROP FUNCTION IF EXISTS giveToVillager;
 DELIMITER $$
-CREATE TRIGGER itemGivenToVillager
-AFTER INSERT ON villagerItems
-FOR EACH ROW
-BEGIN
-	SELECT villagerLikes(villager, item);
-END$$
-DELIMITER ;*/
-
--- gives given item from given user to given villager
-/*DROP PROCEDURE IF EXISTS giveItemToVillager;
-DELIMITER $$
-CREATE PROCEDURE giveItemToVillager
+CREATE FUNCTION giveToVillager
 (
-	userName VARCHAR(255),
-    villagerName VARCHAR(255),
-    item VARCHAR(255)
+	villagerName	VARCHAR(40),
+    userNm			VARCHAR(40),
+    itemName			VARCHAR(40)
 )
+RETURNS BOOLEAN
+DETERMINISTIC
 BEGIN
-	-- Does the user own this item?
-    -- add item, villager, and username into villager items table
-    INSERT INTO villagerItems VALUES (villagerName, item, userName);
+	DELETE FROM userItems WHERE username = userNm AND item = itemName;
+    RETURN (SELECT villagerLikes(villagerName,itemName));
 END$$
-DELIMITER ;*/
-
+DELIMITER ;
 
 
 

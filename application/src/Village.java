@@ -115,7 +115,9 @@ public class Village {
       System.out.println("What would you like to do?\nCommands:\n"
               + "[BUY] to buy an item\n"
               + "[GIVE] to give an item to a villager\n"
+              + "[FISH] to go fishing and earn some money\n"
               + "[ACCOUNT] to get account info\n"
+              + "[VILLAGERS] to get information on the villagers in your town\n"
               + "[Q] to log out");
       command = in.nextLine();
       switch(command.toLowerCase()) {
@@ -124,7 +126,7 @@ public class Village {
           buyItems();
           break;
         case "give":
-          // give item to a villager
+          giveItem();
           break;
         case "fish":
           // get money
@@ -133,7 +135,8 @@ public class Village {
           printAccountInfo();
           break;
         case "villagers":
-          // see info on all the villagers
+          System.out.println("Here are all the villagers in your town:");
+          printAllVillagers();
           break;
         case "q":
           run = false;
@@ -211,10 +214,136 @@ public class Village {
     }
   }
 
+  private static void printUserItems() {
+    try {
+      System.out.println("Furniture:");
+      PreparedStatement furniture = con.prepareStatement(
+              "SELECT furnitureName, cost, color1, color2, style FROM userItems \n"
+                      + "JOIN item ON itemName = item "
+                      + "JOIN furniture ON furnitureName = item "
+                      + "WHERE username = \"" + user + "\";");
+      // add in furniture and clothing distinction
+      ResultSet result = furniture.executeQuery();
+
+      List<String> allFurniture = new ArrayList<>();
+      while (result.next()) {
+        allFurniture.add(result.getString(1)
+                + " -- $" + result.getString(2)
+                + " | Color1: " + result.getString(3)
+                + " | Color2: " + result.getString(4)
+                + " | Style: " + result.getString(5));
+      }
+      for (String s : allFurniture) {
+        System.out.print(s + "\n");
+      }
+      System.out.println("\nClothing:");
+      PreparedStatement clothing = con.prepareStatement(
+              "SELECT clothingName, cost, length, style FROM userItems \n"
+                      + "JOIN item ON itemName = item "
+                      + "JOIN clothing ON clothingName = item "
+                      + "WHERE username = \"" + user + "\";");
+      result = clothing.executeQuery();
+      List<String> allClothing = new ArrayList<>();
+      while (result.next()) {
+        allClothing.add(result.getString(1)
+                + " -- $" + result.getString(2)
+                + " | Length: " + result.getString(3)
+                + " | Style: " + result.getString(4));
+      }
+      for (String s : allClothing) {
+        System.out.print(s + "\n");
+      }
+    } catch (SQLException e) {
+      e.printStackTrace();
+    }
+  }
+
   private static boolean isValidItem(String item) {
     try {
       PreparedStatement items = con.prepareStatement(
               "SELECT itemName FROM item;");
+      ResultSet result = items.executeQuery();
+      while (result.next()) {
+        if (item.equals(result.getString(1))) {
+          return true;
+        }
+      }
+    } catch (SQLException e) {
+      e.printStackTrace();
+    }
+    return false;
+  }
+
+  private static void giveItem() {
+    try {
+      printAllVillagers();
+      System.out.println("Which villager would you like to give an item?");
+      String villager = in.nextLine();
+      if (!isValidVillager(villager)) {
+        throw new IllegalArgumentException("You gave the name of a villager "
+                + "that doesn't exist!");
+      }
+
+      printUserItems();
+      System.out.println("Which item would you like to give them?");
+      String item = in.nextLine();
+      if (!isValidUserItem(item)) {
+        throw new IllegalArgumentException("You don't have this item!");
+      }
+      PreparedStatement give = con.prepareStatement("SELECT giveToVillager(?,?,?)");
+      give.setString(1,villager);
+      give.setString(2,user);
+      give.setString(3,item);
+      ResultSet result = give.executeQuery();
+      result.next();
+      if (result.getBoolean(1)) {
+        System.out.println("The villager liked your gift!");
+      }
+      else {
+        System.out.println("The villager did not like your gift!");
+      }
+    } catch (SQLException e) {
+      e.printStackTrace();
+    } catch (IllegalArgumentException e) {
+      System.out.println(e.getMessage());
+    }
+  }
+
+  private static void printAllVillagers() {
+    try {
+      PreparedStatement villagers = con.prepareStatement("SELECT * FROM villager;");
+      ResultSet allVillagers = villagers.executeQuery();
+      while (allVillagers.next()) {
+        System.out.println(allVillagers.getString(1)
+                + " -- Birthday: " + allVillagers.getString(2)
+                + ", Preferred Style: " + allVillagers.getString(3)
+                + ", Preferred Color: " + allVillagers.getString(4));
+      }
+    } catch (SQLException e) {
+      e.printStackTrace();
+    }
+
+  }
+
+  private static boolean isValidVillager(String villager) {
+    try {
+      PreparedStatement villagers = con.prepareStatement("SELECT villager_name FROM villager;");
+      ResultSet result = villagers.executeQuery();
+      while (result.next()) {
+        if (villager.equals(result.getString(1))) {
+          return true;
+        }
+      }
+    } catch (SQLException e) {
+      e.printStackTrace();
+    }
+    return false;
+  }
+
+  private static boolean isValidUserItem(String item) {
+    try {
+      PreparedStatement items = con.prepareStatement(
+              "SELECT item FROM userItems WHERE username = \"" + user + "\";");
       ResultSet result = items.executeQuery();
       while (result.next()) {
         if (item.equals(result.getString(1))) {
