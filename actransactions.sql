@@ -30,12 +30,22 @@ BEGIN
 END$$
 DELIMITER ;
 
--- gives money to user every 5 minutes
-/*DROP TRIGGER IF EXISTS payUsers;
+-- adds given value to bank account
+DROP PROCEDURE IF EXISTS payUser;
 DELIMITER $$
-CREATE TRIGGER payUsers
-AFTER */
+CREATE PROCEDURE payUser
+(
+	userNm	VARCHAR(40),
+    amount 	INT
+)
+BEGIN
+	DECLARE accountBal INT;
+    SET accountBal = (SELECT account_bal FROM users WHERE username = userNm);
+    UPDATE users SET account_bal = amount + accountBal WHERE username = userNm;
+END$$
+DELIMITER ;
 
+-- buys the given item for the given user if they have enough money
 DROP FUNCTION IF EXISTS buyItem;
 DELIMITER $$
 CREATE FUNCTION buyItem
@@ -98,7 +108,7 @@ CREATE FUNCTION giveToVillager
 RETURNS BOOLEAN
 DETERMINISTIC
 BEGIN
-	DELETE FROM userItems WHERE username = userNm AND item = itemName;
+	DELETE FROM userItems WHERE username = userNm AND item = itemName LIMIT 1;
     RETURN (SELECT villagerLikes(villagerName,itemName));
 END$$
 DELIMITER ;

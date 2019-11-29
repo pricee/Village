@@ -6,15 +6,18 @@ import java.sql.ResultSet;
 import java.sql.SQLException;
 import java.util.ArrayList;
 import java.util.List;
+import java.util.Random;
 import java.util.Scanner;
 
 public class Village {
   private static Connection con;
   private static Scanner in;
   private static String user;
+  private static Random r;
 
   public static void main(String[] args) {
     in = new Scanner(System.in);
+    r = new Random();
     try {
       Class.forName("com.mysql.cj.jdbc.Driver");
 
@@ -49,29 +52,12 @@ public class Village {
       System.out.println("...\nWelcome to Village!\nCommands:\n"
               + "[NEW] to create a new account\n"
               + "[LOGIN] to log in with an existing account\n"
+              + "[DELETE] to delete your account\n"
               + "[Q] to exit the game");
       command = in.nextLine();
       switch ((command.toLowerCase())) {
         case "new":
-          // add new user to ac
-          try {
-            System.out.println("What would you like as your username?");
-            String newUser = in.nextLine();
-            System.out.println("Password?");
-            String newPassword = in.nextLine();
-            System.out.println("What would you like your character's name to be?");
-            String newCharacterN = in.nextLine();
-            CallableStatement addUser = con.prepareCall("{call addUser(?,?,?)}");
-            addUser.setString(1, newUser);
-            addUser.setString(2, newPassword);
-            addUser.setString(3, newCharacterN);
-            addUser.execute();
-            System.out.println("...");
-          }
-          catch (SQLException e) {
-            System.out.println("Oh no! Adding new user failed! There must be someone else with "
-                    + "that username :(");
-          }
+          addNewUser();
           break;
         case "login":
           try {
@@ -96,7 +82,7 @@ public class Village {
           }
           break;
         case "delete":
-          // deletes an account if you have the password
+          deleteAccount();
           break;
         case "q":
           System.out.println("Goodbye!");
@@ -105,6 +91,64 @@ public class Village {
           System.out.println("Oh no! Invalid command! Please try again.");
       }
     }
+  }
+
+  private static void addNewUser() {
+    try {
+      System.out.println("What would you like as your username?");
+      String newUser = in.nextLine();
+      System.out.println("Password?");
+      String newPassword = in.nextLine();
+      System.out.println("What would you like your character's name to be?");
+      String newCharacterN = in.nextLine();
+      CallableStatement addUser = con.prepareCall("{call addUser(?,?,?)}");
+      addUser.setString(1, newUser);
+      addUser.setString(2, newPassword);
+      addUser.setString(3, newCharacterN);
+      addUser.execute();
+      System.out.println("...");
+    }
+    catch (SQLException e) {
+      System.out.println("Oh no! Adding new user failed! There must be someone else with "
+              + "that username :(");
+    }
+  }
+
+  private static void deleteAccount() {
+    try {
+      System.out.println("Username:");
+      user = in.nextLine();
+      System.out.println("Password:");
+      String pass = in.nextLine();
+      if (isValidUsernameAndPass(user, pass)) {
+        PreparedStatement delete =
+                con.prepareStatement("DELETE FROM users WHERE username = \"" + user
+                        + "\" AND pword = \"" + pass + "\";");
+        delete.execute();
+        System.out.println("Account deleted");
+      }
+      else {
+        System.out.println("Invalid username or password");
+      }
+    } catch (SQLException e) {
+      e.printStackTrace();
+    }
+  }
+
+  private static boolean isValidUsernameAndPass(String username, String password) {
+    try {
+      PreparedStatement users = con.prepareStatement("SELECT username, pword FROM users;");
+      ResultSet allUsers = users.executeQuery();
+      while (allUsers.next()) {
+        if (username.equals(allUsers.getString(1))
+                && password.equals(allUsers.getString(2))) {
+          return true;
+        }
+      }
+    } catch (SQLException e) {
+      e.printStackTrace();
+    }
+    return false;
   }
 
   private static void gameplay() {
@@ -129,7 +173,7 @@ public class Village {
           giveItem();
           break;
         case "fish":
-          // get money
+          fish();
           break;
         case "account":
           printAccountInfo();
@@ -144,8 +188,7 @@ public class Village {
         default:
           System.out.println("Oh no! Invalid command! Please try again.");
       }
-      System.out.println("...\nPress enter to continue");
-      in.nextLine();
+      System.out.println("...");
     }
   }
 
@@ -354,6 +397,50 @@ public class Village {
       e.printStackTrace();
     }
     return false;
+  }
+
+  private static void fish() {
+    int earned = r.nextInt(5);
+    int deposit = 0;
+    switch (earned) {
+      case 0:
+        System.out.println("You didn't catch anything :(");
+        break;
+      case 1:
+        System.out.println("You caught a goldfish!\nYou earned $5.");
+        deposit = 5;
+        break;
+      case 2:
+        System.out.println("You caught a trout!\nYou earned $10.");
+        deposit = 10;
+        break;
+      case 3:
+        System.out.println("You caught a sturgeon!\nYou earned $20.");
+        deposit = 20;
+        break;
+      case 4:
+        System.out.println("You caught a whale!\nYou earned $50.");
+        deposit = 50;
+        break;
+      default:
+
+    }
+    try {
+      CallableStatement addToAccount = con.prepareCall("{call payUser(?,?)}");
+      addToAccount.setString(1, user);
+      addToAccount.setInt(2,deposit);
+      addToAccount.execute();
+
+      PreparedStatement accountBal =
+              con.prepareStatement("SELECT account_bal FROM users "
+                      + "WHERE username = \"" + user + "\";");
+      ResultSet balance = accountBal.executeQuery();
+      balance.next();
+      System.out.println("You have $" + balance.getString(1)
+              + " in your account");
+    } catch (SQLException e) {
+      e.printStackTrace();
+    }
   }
 
   private static void printAccountInfo() {
