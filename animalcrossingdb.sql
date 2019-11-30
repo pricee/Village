@@ -8,7 +8,9 @@ CREATE TABLE users
     pword				VARCHAR(40)		NOT NULL,
     character_name		VARCHAR(40)		NOT NULL,
     account_bal			INT 			NOT NULL,
+    total_items 		INT 			NOT NULL,
     CHECK (account_bal >= 0)
+    CHECK (total_items >= 0)
 );
 INSERT INTO users VALUES ("emma", "1234", "thepriceisright", 1000), ("emily", "5678", "emily", 2000);
 
@@ -82,8 +84,12 @@ CREATE TABLE userItems
 (
 	username 	VARCHAR(255),
     item		VARCHAR(255),
-    CONSTRAINT ui_user_fk FOREIGN KEY (username) REFERENCES users(username),
+    CONSTRAINT ui_user_fk FOREIGN KEY (username) REFERENCES users(username)
+    ON UPDATE CASCADE
+    ON DELETE CASCADE,
     CONSTRAINT ui_item_fk FOREIGN KEY (item) REFERENCES item(itemName)
+    ON UPDATE CASCADE
+    ON DELETE CASCADE
 );
 
 
