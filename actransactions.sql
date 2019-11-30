@@ -113,6 +113,30 @@ BEGIN
 END$$
 DELIMITER ;
 
+-- If a user recieves an item, their item count is updated
+DELIMITER $$
+DROP TRIGGER IF EXISTS add_total_item$$
+CREATE TRIGGER add_total_item
+AFTER INSERT ON userItems
+FOR EACH ROW
+BEGIN
+UPDATE users
+SET total_items = total_items + 1
+WHERE username = NEW.username;
+END$$
+
+-- If a user gives an item to someone, their item count is updated
+DELIMITER $$
+DROP TRIGGER IF EXISTS subtract_total_item$$
+CREATE TRIGGER subtract_total_item
+AFTER INSERT ON userItems
+FOR EACH ROW
+BEGIN
+UPDATE users
+SET total_items = total_items - 1
+WHERE username = NEW.username;
+END$$
+
 
 
 
