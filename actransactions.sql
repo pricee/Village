@@ -30,7 +30,7 @@ BEGIN
 	DECLARE currItems int;
 	DECLARE itemLimit int;
     SET currItems = (SELECT count(*) FROM userItems WHERE username = usernm);
-    SET itemLimit = 2;
+    SET itemLimit = 16;
     IF (currItems <  itemLimit) THEN
 		RETURN TRUE;
 	ELSE 
