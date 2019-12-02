@@ -2,8 +2,9 @@
 <project version="4">
   <component name="ChangeListManager">
     <list default="true" id="137b1a79-c377-4ab5-b305-c03a384dd16b" name="Default Changelist" comment="">
-      <change beforePath="$PROJECT_DIR$/../animalcrossingdb.sql" beforeDir="false" afterPath="$PROJECT_DIR$/../animalcrossingdb.sql" afterDir="false" />
       <change beforePath="$PROJECT_DIR$/.idea/workspace.xml" beforeDir="false" afterPath="$PROJECT_DIR$/.idea/workspace.xml" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/out/production/application/Village.class" beforeDir="false" afterPath="$PROJECT_DIR$/out/production/application/Village.class" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/src/Village.java" beforeDir="false" afterPath="$PROJECT_DIR$/src/Village.java" afterDir="false" />
     </list>
     <option name="EXCLUDED_CONVERTED_TO_IGNORED" value="true" />
     <option name="SHOW_DIALOG" value="false" />
@@ -82,6 +83,7 @@
       <workItem from="1574356870222" duration="3391000" />
       <workItem from="1574651405333" duration="17480000" />
       <workItem from="1575083213097" duration="102000" />
+      <workItem from="1575320500838" duration="1449000" />
     </task>
     <servers />
   </component>
@@ -93,7 +95,9 @@
       <map>
         <entry key="MAIN">
           <value>
-            <State />
+            <State>
+              <option name="COLUMN_ORDER" />
+            </State>
           </value>
         </entry>
       </map>

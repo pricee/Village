@@ -28,7 +28,7 @@ public class Village {
       String password = in.nextLine();
       System.out.println();*/
       String username = "root";
-      String password = "root";
+      String password = "H0ppySandy!";
       con = DriverManager.getConnection(
               "jdbc:mysql://localhost:3306/village?", username, password);
 
@@ -45,6 +45,7 @@ public class Village {
     }
   }
 
+  // runs login sequence where you can either make a new account, login, or delete your account
   private static void setup() {
     String command;
     boolean signedin = false;
@@ -93,7 +94,7 @@ public class Village {
     }
   }
 
-
+  // adds a new user to the database
   private static void addNewUser() {
     try {
       System.out.println("What would you like as your username?");
@@ -115,6 +116,7 @@ public class Village {
     }
   }
 
+  // deletes a user from the database if they provide the correct username and password
   private static void deleteAccount() {
     try {
       System.out.println("Username:");
@@ -136,6 +138,7 @@ public class Village {
     }
   }
 
+  // are the provided username and password correct?
   private static boolean isValidUsernameAndPass(String username, String password) {
     try {
       PreparedStatement users = con.prepareStatement("SELECT username, pword FROM users;");
@@ -152,6 +155,7 @@ public class Village {
     return false;
   }
 
+  // runs the gameplay sequence once a user logs in
   private static void gameplay() {
     String command;
     boolean run = true;
@@ -193,6 +197,7 @@ public class Village {
     }
   }
 
+  // prints all the items (furniture and clothing) in the database
   private static void printAllItems() {
     try {
       System.out.println("Furniture:");
@@ -233,6 +238,7 @@ public class Village {
     }
   }
 
+  // lets the user buy an item
   private static void buyItems() {
     try {
       PreparedStatement accountBal =
@@ -258,6 +264,7 @@ public class Village {
     }
   }
 
+  // prints all the items (furniture and clothing) a user owns
   private static void printUserItems() {
     try {
       System.out.println("Furniture:");
@@ -302,6 +309,7 @@ public class Village {
     }
   }
 
+  // is the provided item in the database/is valid?
   private static boolean isValidItem(String item) {
     try {
       PreparedStatement items = con.prepareStatement(
@@ -318,6 +326,7 @@ public class Village {
     return false;
   }
 
+  // allows the user to give an item to a villager
   private static void giveItem() {
     try {
       printAllVillagers();
@@ -341,7 +350,8 @@ public class Village {
       ResultSet result = give.executeQuery();
       result.next();
       if (result.getBoolean(1)) {
-        System.out.println("The villager liked your gift!");
+        System.out.println("The villager liked your gift! Here's $100!");
+        addToAccount(100);
       }
       else {
         System.out.println("The villager did not like your gift!");
@@ -353,6 +363,7 @@ public class Village {
     }
   }
 
+  // prints all the villagers' information
   private static void printAllVillagers() {
     try {
       PreparedStatement villagers = con.prepareStatement("SELECT * FROM villager;");
@@ -369,6 +380,7 @@ public class Village {
 
   }
 
+  // does the given villager live in the town?
   private static boolean isValidVillager(String villager) {
     try {
       PreparedStatement villagers = con.prepareStatement("SELECT villager_name FROM villager;");
@@ -384,6 +396,7 @@ public class Village {
     return false;
   }
 
+  // does the user own the given item?
   private static boolean isValidUserItem(String item) {
     try {
       PreparedStatement items = con.prepareStatement(
@@ -400,6 +413,7 @@ public class Village {
     return false;
   }
 
+  // executes the fishing sequence to earn money $$$
   private static void fish() {
     int earned = r.nextInt(5);
     int deposit = 0;
@@ -412,45 +426,51 @@ public class Village {
     while(fishing) {
       command = in.nextLine();
       switch(command.toLowerCase()) {
-      case "yes":
-        fishingWithASCII(earned);
-        break;
-      case "no":
-        System.out.println("You don't go fishing.");
-        gameplay();
-        break;
-      case "quit":
-        gameplay();
-        break;
-      default:
-        System.out.println("Oh no! Invalid command! Please try again.");
+        case "yes":
+          fishingWithASCII();
+          break;
+        case "no":
+          System.out.println("You don't go fishing.");
+          gameplay();
+          break;
+        case "quit":
+          gameplay();
+          break;
+        default:
+          System.out.println("Oh no! Invalid command! Please try again.");
       }
       System.out.println("...");
       fishing = false;
     }
+
     switch (earned) {
-    case 0:
-      System.out.println("You didn't catch anything :(");
-      break;
-    case 1:
-      System.out.println("You caught a goldfish!\nYou earned $5.");
-      deposit = 5;
-      break;
-    case 2:
-      System.out.println("You caught a trout!\nYou earned $10.");
-      deposit = 10;
-      break;
-    case 3:
-      System.out.println("You caught a sturgeon!\nYou earned $20.");
-      deposit = 20;
-      break;
-    case 4:
-      System.out.println("You caught a whale!\nYou earned $50.");
-      deposit = 50;
-      break;
-    default:
+      case 0:
+        System.out.println("You didn't catch anything :(");
+        break;
+      case 1:
+        System.out.println("You caught a goldfish!\nYou earned $10.");
+        deposit = 10;
+        break;
+      case 2:
+        System.out.println("You caught a trout!\nYou earned $20.");
+        deposit = 20;
+        break;
+      case 3:
+        System.out.println("You caught a sturgeon!\nYou earned $50.");
+        deposit = 50;
+        break;
+      case 4:
+        System.out.println("You caught a whale!\nYou earned $500.");
+        deposit = 500;
+        break;
+      default:
 
     }
+    addToAccount(deposit);
+  }
+
+  // adds the given value of money to the users account
+  private static void addToAccount(int deposit) {
     try {
       CallableStatement addToAccount = con.prepareCall("{call payUser(?,?)}");
       addToAccount.setString(1, user);
@@ -458,38 +478,41 @@ public class Village {
       addToAccount.execute();
 
       PreparedStatement accountBal =
-          con.prepareStatement("SELECT account_bal FROM users "
-              + "WHERE username = \"" + user + "\";");
+              con.prepareStatement("SELECT account_bal FROM users "
+                      + "WHERE username = \"" + user + "\";");
       ResultSet balance = accountBal.executeQuery();
       balance.next();
       System.out.println("You have $" + balance.getString(1)
-      + " in your account");
+              + " in your account");
     } catch (SQLException e) {
       e.printStackTrace();
     }
   }
 
-  private static void fishingWithASCII(int size) {
-    System.out.println(""
-        + "              /==\\                              \n  " +  
-        "           | ツ |                                \n" + 
-        "              \\__/     /\\                       \n" + 
-        "______________/|\\_____/__\\___          \n" + 
-        "             / | \\   /    \\ /|                           \n" + 
-        "            /  |  \\ /      \\/\\/\\/\\/\\/\\/\\/\\/\\/\\/\\/\\/\\/\\/\\/\\/\\/\\/\\/\\/\\/\\/\\/\\/\\/\\/\\/\\/\\/\\/\\                  \n" + 
+  // prints a fun ASCII picture of the user fishing!!
+  private static void fishingWithASCII() {
+    System.out.println("" +
+        "              /==\\\n" +
+        "             | ツ |\n" +
+        "              \\__/     /\\\n" +
+        "______________/|\\_____/__\\___\n" +
+        "             / | \\   /    \\ /|\n" +
+        "            /  |  \\ /      \\/\\/\\/\\/\\/\\/\\/\\/\\/\\/\\/\\/\\/\\/\\/\\/\\/\\/\\/\n" +
         "           o   /\\  o      / \\                      \n" + 
         "              /  \\       /   \\                          \n" + 
-        "             /    \\     /     \\            /\\/\\/\\/\\/\\             /\\/\\/\\/\\/\\ \n" + 
+        "             /    \\     /     \\            /\\/\\/\\/\\/\\             /\\/\\/\\/\\\n" +
         "=======================/       \\                         \n" +  
         "                       |        ø                         \n" + 
         "                       ~                                 /\\/\\/\\/\\/\\\n" + 
-        "        /\\/\\/\\/\\/\\                                                                                                 \n" + 
-        "                                                                                                                          \n" + 
-        "       \n" + 
-        "                                               \n" + 
+        "        /\\/\\/\\/\\/\\                                                  \n" +
+        "\n" +
+        "\n" +
+        "\n" +
         "");
     
   }
+
+  // prints all the information in a user's account
   private static void printAccountInfo() {
     try {
       System.out.println("Account Information:");
