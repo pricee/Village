@@ -28,7 +28,7 @@ public class Village {
       String password = in.nextLine();
       System.out.println();*/
       String username = "root";
-      String password = "H0ppySandy!";
+      String password = "root";
       con = DriverManager.getConnection(
               "jdbc:mysql://localhost:3306/village?", username, password);
 
@@ -93,6 +93,7 @@ public class Village {
     }
   }
 
+
   private static void addNewUser() {
     try {
       System.out.println("What would you like as your username?");
@@ -110,7 +111,7 @@ public class Village {
     }
     catch (SQLException e) {
       System.out.println("Oh no! Adding new user failed! There must be someone else with "
-              + "that username :(");
+          + "that username :(");
     }
   }
 
@@ -122,8 +123,8 @@ public class Village {
       String pass = in.nextLine();
       if (isValidUsernameAndPass(user, pass)) {
         PreparedStatement delete =
-                con.prepareStatement("DELETE FROM users WHERE username = \"" + user
-                        + "\" AND pword = \"" + pass + "\";");
+            con.prepareStatement("DELETE FROM users WHERE username = \"" + user
+                + "\" AND pword = \"" + pass + "\";");
         delete.execute();
         System.out.println("Account deleted");
       }
@@ -141,7 +142,7 @@ public class Village {
       ResultSet allUsers = users.executeQuery();
       while (allUsers.next()) {
         if (username.equals(allUsers.getString(1))
-                && password.equals(allUsers.getString(2))) {
+            && password.equals(allUsers.getString(2))) {
           return true;
         }
       }
@@ -157,36 +158,36 @@ public class Village {
     System.out.println("...");
     while (run) {
       System.out.println("What would you like to do?\nCommands:\n"
-              + "[BUY] to buy an item\n"
-              + "[GIVE] to give an item to a villager\n"
-              + "[FISH] to go fishing and earn some money\n"
-              + "[ACCOUNT] to get account info\n"
-              + "[VILLAGERS] to get information on the villagers in your town\n"
-              + "[Q] to log out");
+          + "[BUY] to buy an item\n"
+          + "[GIVE] to give an item to a villager\n"
+          + "[FISH] to go fishing and earn some money\n"
+          + "[ACCOUNT] to get account info\n"
+          + "[VILLAGERS] to get information on the villagers in your town\n"
+          + "[Q] to log out");
       command = in.nextLine();
       switch(command.toLowerCase()) {
-        case "buy":
-          printAllItems();
-          buyItems();
-          break;
-        case "give":
-          giveItem();
-          break;
-        case "fish":
-          fish();
-          break;
-        case "account":
-          printAccountInfo();
-          break;
-        case "villagers":
-          System.out.println("Here are all the villagers in your town:");
-          printAllVillagers();
-          break;
-        case "q":
-          run = false;
-          break;
-        default:
-          System.out.println("Oh no! Invalid command! Please try again.");
+      case "buy":
+        printAllItems();
+        buyItems();
+        break;
+      case "give":
+        giveItem();
+        break;
+      case "fish":
+        fish();
+        break;
+      case "account":
+        printAccountInfo();
+        break;
+      case "villagers":
+        System.out.println("Here are all the villagers in your town:");
+        printAllVillagers();
+        break;
+      case "q":
+        run = false;
+        break;
+      default:
+        System.out.println("Oh no! Invalid command! Please try again.");
       }
       System.out.println("...");
     }
@@ -196,33 +197,33 @@ public class Village {
     try {
       System.out.println("Furniture:");
       PreparedStatement furniture = con.prepareStatement(
-              "SELECT furnitureName, cost, color1, color2, style FROM furniture \n"
-                      + "JOIN item ON itemName = furnitureName;");
+          "SELECT furnitureName, cost, color1, color2, style FROM furniture \n"
+              + "JOIN item ON itemName = furnitureName;");
       // add in furniture and clothing distinction
       ResultSet result = furniture.executeQuery();
 
       List<String> allFurniture = new ArrayList<>();
       while (result.next()) {
         allFurniture.add(result.getString(1)
-                + " -- $" + result.getString(2)
-                + " | Color1: " + result.getString(3)
-                + " | Color2: " + result.getString(4)
-                + " | Style: " + result.getString(5));
+            + " -- $" + result.getString(2)
+            + " | Color1: " + result.getString(3)
+            + " | Color2: " + result.getString(4)
+            + " | Style: " + result.getString(5));
       }
       for (String s : allFurniture) {
         System.out.print(s + "\n");
       }
       System.out.println("\nClothing:");
       PreparedStatement clothing = con.prepareStatement(
-              "SELECT clothingName, cost, length, style FROM clothing \n"
+          "SELECT clothingName, cost, length, style FROM clothing \n"
               + "JOIN item ON itemName = clothingName;");
       result = clothing.executeQuery();
       List<String> allClothing = new ArrayList<>();
       while (result.next()) {
         allClothing.add(result.getString(1)
-                + " -- $" + result.getString(2)
-                + " | Length: " + result.getString(3)
-                + " | Style: " + result.getString(4));
+            + " -- $" + result.getString(2)
+            + " | Length: " + result.getString(3)
+            + " | Style: " + result.getString(4));
       }
       for (String s : allClothing) {
         System.out.print(s + "\n");
@@ -235,11 +236,11 @@ public class Village {
   private static void buyItems() {
     try {
       PreparedStatement accountBal =
-              con.prepareStatement("SELECT account_bal FROM users WHERE username = \'" + user + "\';");
+          con.prepareStatement("SELECT account_bal FROM users WHERE username = \'" + user + "\';");
       ResultSet result = accountBal.executeQuery();
       result.next();
       System.out.println("\nWhat would you like to buy?"
-              + "\nAccount Balance: $" + result.getString(1));
+          + "\nAccount Balance: $" + result.getString(1));
       String item = in.nextLine();
       if (isValidItem(item)) {
         PreparedStatement buyItem = con.prepareCall("SELECT buyItem(?,?);");
@@ -261,37 +262,37 @@ public class Village {
     try {
       System.out.println("Furniture:");
       PreparedStatement furniture = con.prepareStatement(
-              "SELECT furnitureName, cost, color1, color2, style FROM userItems \n"
-                      + "JOIN item ON itemName = item "
-                      + "JOIN furniture ON furnitureName = item "
-                      + "WHERE username = \"" + user + "\";");
+          "SELECT furnitureName, cost, color1, color2, style FROM userItems \n"
+              + "JOIN item ON itemName = item "
+              + "JOIN furniture ON furnitureName = item "
+              + "WHERE username = \"" + user + "\";");
       // add in furniture and clothing distinction
       ResultSet result = furniture.executeQuery();
 
       List<String> allFurniture = new ArrayList<>();
       while (result.next()) {
         allFurniture.add(result.getString(1)
-                + " -- $" + result.getString(2)
-                + " | Color1: " + result.getString(3)
-                + " | Color2: " + result.getString(4)
-                + " | Style: " + result.getString(5));
+            + " -- $" + result.getString(2)
+            + " | Color1: " + result.getString(3)
+            + " | Color2: " + result.getString(4)
+            + " | Style: " + result.getString(5));
       }
       for (String s : allFurniture) {
         System.out.print(s + "\n");
       }
       System.out.println("\nClothing:");
       PreparedStatement clothing = con.prepareStatement(
-              "SELECT clothingName, cost, length, style FROM userItems \n"
-                      + "JOIN item ON itemName = item "
-                      + "JOIN clothing ON clothingName = item "
-                      + "WHERE username = \"" + user + "\";");
+          "SELECT clothingName, cost, length, style FROM userItems \n"
+              + "JOIN item ON itemName = item "
+              + "JOIN clothing ON clothingName = item "
+              + "WHERE username = \"" + user + "\";");
       result = clothing.executeQuery();
       List<String> allClothing = new ArrayList<>();
       while (result.next()) {
         allClothing.add(result.getString(1)
-                + " -- $" + result.getString(2)
-                + " | Length: " + result.getString(3)
-                + " | Style: " + result.getString(4));
+            + " -- $" + result.getString(2)
+            + " | Length: " + result.getString(3)
+            + " | Style: " + result.getString(4));
       }
       for (String s : allClothing) {
         System.out.print(s + "\n");
@@ -304,7 +305,7 @@ public class Village {
   private static boolean isValidItem(String item) {
     try {
       PreparedStatement items = con.prepareStatement(
-              "SELECT itemName FROM item;");
+          "SELECT itemName FROM item;");
       ResultSet result = items.executeQuery();
       while (result.next()) {
         if (item.equals(result.getString(1))) {
@@ -324,7 +325,7 @@ public class Village {
       String villager = in.nextLine();
       if (!isValidVillager(villager)) {
         throw new IllegalArgumentException("You gave the name of a villager "
-                + "that doesn't exist!");
+            + "that doesn't exist!");
       }
 
       printUserItems();
@@ -358,9 +359,9 @@ public class Village {
       ResultSet allVillagers = villagers.executeQuery();
       while (allVillagers.next()) {
         System.out.println(allVillagers.getString(1)
-                + " -- Birthday: " + allVillagers.getString(2)
-                + ", Preferred Style: " + allVillagers.getString(3)
-                + ", Preferred Color: " + allVillagers.getString(4));
+            + " -- Birthday: " + allVillagers.getString(2)
+            + ", Preferred Style: " + allVillagers.getString(3)
+            + ", Preferred Color: " + allVillagers.getString(4));
       }
     } catch (SQLException e) {
       e.printStackTrace();
@@ -386,7 +387,7 @@ public class Village {
   private static boolean isValidUserItem(String item) {
     try {
       PreparedStatement items = con.prepareStatement(
-              "SELECT item FROM userItems WHERE username = \"" + user + "\";");
+          "SELECT item FROM userItems WHERE username = \"" + user + "\";");
       ResultSet result = items.executeQuery();
       while (result.next()) {
         if (item.equals(result.getString(1))) {
@@ -402,27 +403,52 @@ public class Village {
   private static void fish() {
     int earned = r.nextInt(5);
     int deposit = 0;
-    switch (earned) {
-      case 0:
-        System.out.println("You didn't catch anything :(");
+    String command;
+    boolean fishing = true;
+    System.out.println("You approach the pier. Go fishing? \n"
+        + "[YES] to go fishing\n" + 
+        "[NO] to not go fishing\n" + 
+        "[QUIT] to go back to the main menu\n");
+    while(fishing) {
+      command = in.nextLine();
+      switch(command.toLowerCase()) {
+      case "yes":
+        fishingWithASCII(earned);
         break;
-      case 1:
-        System.out.println("You caught a goldfish!\nYou earned $5.");
-        deposit = 5;
+      case "no":
+        System.out.println("You don't go fishing.");
+        gameplay();
         break;
-      case 2:
-        System.out.println("You caught a trout!\nYou earned $10.");
-        deposit = 10;
-        break;
-      case 3:
-        System.out.println("You caught a sturgeon!\nYou earned $20.");
-        deposit = 20;
-        break;
-      case 4:
-        System.out.println("You caught a whale!\nYou earned $50.");
-        deposit = 50;
+      case "quit":
+        gameplay();
         break;
       default:
+        System.out.println("Oh no! Invalid command! Please try again.");
+      }
+      System.out.println("...");
+      fishing = false;
+    }
+    switch (earned) {
+    case 0:
+      System.out.println("You didn't catch anything :(");
+      break;
+    case 1:
+      System.out.println("You caught a goldfish!\nYou earned $5.");
+      deposit = 5;
+      break;
+    case 2:
+      System.out.println("You caught a trout!\nYou earned $10.");
+      deposit = 10;
+      break;
+    case 3:
+      System.out.println("You caught a sturgeon!\nYou earned $20.");
+      deposit = 20;
+      break;
+    case 4:
+      System.out.println("You caught a whale!\nYou earned $50.");
+      deposit = 50;
+      break;
+    default:
 
     }
     try {
@@ -432,23 +458,44 @@ public class Village {
       addToAccount.execute();
 
       PreparedStatement accountBal =
-              con.prepareStatement("SELECT account_bal FROM users "
-                      + "WHERE username = \"" + user + "\";");
+          con.prepareStatement("SELECT account_bal FROM users "
+              + "WHERE username = \"" + user + "\";");
       ResultSet balance = accountBal.executeQuery();
       balance.next();
       System.out.println("You have $" + balance.getString(1)
-              + " in your account");
+      + " in your account");
     } catch (SQLException e) {
       e.printStackTrace();
     }
   }
 
+  private static void fishingWithASCII(int size) {
+    System.out.println(""
+        + "              /==\\                              \n  " +  
+        "           | ツ |                                \n" + 
+        "              \\__/     /\\                       \n" + 
+        "______________/|\\_____/__\\___          \n" + 
+        "             / | \\   /    \\ /|                           \n" + 
+        "            /  |  \\ /      \\/\\/\\/\\/\\/\\/\\/\\/\\/\\/\\/\\/\\/\\/\\/\\/\\/\\/\\/\\/\\/\\/\\/\\/\\/\\/\\/\\/\\/\\/\\                  \n" + 
+        "           o   /\\  o      / \\                      \n" + 
+        "              /  \\       /   \\                          \n" + 
+        "             /    \\     /     \\            /\\/\\/\\/\\/\\             /\\/\\/\\/\\/\\ \n" + 
+        "=======================/       \\                         \n" +  
+        "                       |        ø                         \n" + 
+        "                       ~                                 /\\/\\/\\/\\/\\\n" + 
+        "        /\\/\\/\\/\\/\\                                                                                                 \n" + 
+        "                                                                                                                          \n" + 
+        "       \n" + 
+        "                                               \n" + 
+        "");
+    
+  }
   private static void printAccountInfo() {
     try {
       System.out.println("Account Information:");
       PreparedStatement account =
-              con.prepareStatement("SELECT * FROM users WHERE username = "
-                      + "\'" + user + "\';");
+          con.prepareStatement("SELECT * FROM users WHERE username = "
+              + "\'" + user + "\';");
       ResultSet result = account.executeQuery();
       result.next();
       System.out.println("Username: " + result.getString(1));
@@ -457,31 +504,31 @@ public class Village {
 
       // print out what they own
       PreparedStatement furniture =
-              con.prepareStatement("\n"
-                      + "SELECT item, style, color1, color2 FROM userItems "
-                      + "JOIN item ON itemName = item "
-                      + "JOIN furniture ON furnitureName = item "
-                      + "WHERE username = \'" + user + "\';");
+          con.prepareStatement("\n"
+              + "SELECT item, style, color1, color2 FROM userItems "
+              + "JOIN item ON itemName = item "
+              + "JOIN furniture ON furnitureName = item "
+              + "WHERE username = \'" + user + "\';");
       ResultSet userFurniture = furniture.executeQuery();
       System.out.println("Here is all the furniture you own:");
       while (userFurniture.next()) {
         System.out.println(userFurniture.getString(1)
-                + " -- Style: " + userFurniture.getString(2)
-                + " | Color1: " + userFurniture.getString(3)
-                + " | Color2: " + userFurniture.getString(4));
+            + " -- Style: " + userFurniture.getString(2)
+            + " | Color1: " + userFurniture.getString(3)
+            + " | Color2: " + userFurniture.getString(4));
       }
       PreparedStatement clothing =
-              con.prepareStatement("\n"
-                      + "SELECT item, style, length FROM userItems "
-                      + "JOIN item ON itemName = item "
-                      + "JOIN clothing ON clothingName = item "
-                      + "WHERE username = \'" + user + "\';");
+          con.prepareStatement("\n"
+              + "SELECT item, style, length FROM userItems "
+              + "JOIN item ON itemName = item "
+              + "JOIN clothing ON clothingName = item "
+              + "WHERE username = \'" + user + "\';");
       ResultSet userClothing = clothing.executeQuery();
       System.out.println("Here is all the clothing you own:");
       while (userClothing.next()) {
         System.out.println(userClothing.getString(1)
-                + " -- Style: " + userClothing.getString(2)
-                + " | Length: " + userClothing.getString(3));
+            + " -- Style: " + userClothing.getString(2)
+            + " | Length: " + userClothing.getString(3));
       }
     } catch (SQLException e) {
       e.printStackTrace();
