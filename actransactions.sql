@@ -16,6 +16,29 @@ DELIMITER ;
 
 PREPARE tryLogin FROM 'SELECT login(?,?)';
 
+-- limits a users inventory to a certain number of items
+DROP FUNCTION IF EXISTS limitInventory;
+DELIMITER $$
+CREATE FUNCTION limitInventory
+(
+	usernm 		VARCHAR(40)
+)
+RETURNS BOOLEAN
+DETERMINISTIC
+READS SQL DATA
+BEGIN
+	DECLARE currItems int;
+	DECLARE itemLimit int;
+    SET currItems = (SELECT count(*) FROM userItems WHERE username = usernm);
+    SET itemLimit = 2;
+    IF (currItems <  itemLimit) THEN
+		RETURN TRUE;
+	ELSE 
+		RETURN FALSE;
+	END IF;
+END$$
+DELIMITER ;
+
 -- adds a user
 DROP PROCEDURE IF EXISTS addUser;
 DELIMITER $$
@@ -59,18 +82,18 @@ READS SQL DATA
 BEGIN
 	DECLARE accountBal INT;
     DECLARE itemCost INT;
-    DECLARE totalItems INT;
     SET accountBal = (SELECT account_bal FROM users WHERE username = usernm);
     SET itemCost = (SELECT cost FROM item WHERE itemName = item);
-    SET totalItems = (SELECT total_items FROM users WHERE username = usernm);
-	IF itemCost <= accountBal THEN 
+	IF itemCost <= accountBal AND limitInventory(usernm) THEN 
         INSERT INTO userItems VALUES (usernm, item);
         UPDATE users SET account_bal = accountBal - itemCost WHERE username = usernm;
-        UPDATE users SET total_items = totalItems + 1 WHERE username = usernm;
         RETURN "Item bought!";
-    ELSE 
+    ELSE IF itemCost <= accountBal AND NOT limitInventory(usernm) THEN 
+		RETURN "You don't have enough room!";
+	ELSE
 		RETURN "You don't have enough money!";
 	END IF;
+    END IF;
 END$$
 DELIMITER ;
 
@@ -140,8 +163,3 @@ UPDATE users
 SET total_items = total_items - 1
 WHERE username = OLD.username;
 END$$
-
-
-
-
-
