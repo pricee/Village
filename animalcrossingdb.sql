@@ -10,21 +10,18 @@ CREATE TABLE users
     account_bal			INT 			NOT NULL,
     CHECK (account_bal >= 0)
 );
-INSERT INTO users VALUES ("emma", "1234", "thepriceisright", 1000), ("emily", "5678", "emily", 2000);
+INSERT INTO users VALUES ("emma", "1234", "thepriceisright", 0), ("emily", "5678", "emily", 0);
 
 CREATE TABLE style
 (
 	style	VARCHAR(40)		PRIMARY KEY 	DEFAULT 'BASIC'
 );
-INSERT INTO style VALUES ("cute"), ("goth"), ("basic");
 
 CREATE TABLE color
 (
 	color	VARCHAR(40)		PRIMARY KEY		DEFAULT 'WHITE'
 );
-INSERT INTO color VALUES ("red"), ("plaid"), ("white");
 
--- USE ON DEFAULT
 CREATE TABLE villager
 (
 	villager_name	VARCHAR(40)		PRIMARY KEY,
@@ -38,7 +35,6 @@ CREATE TABLE villager
 		ON UPDATE NO ACTION
         ON DELETE NO ACTION
 );
-INSERT INTO villager VALUES ("todd", "2001-01-02", "goth", "plaid"), ("stacy", "2002-12-03", "cute", "red");
 
 CREATE TABLE item
 (
@@ -49,10 +45,6 @@ CREATE TABLE item
 		ON UPDATE SET NULL
         ON DELETE SET NULL
 );
-INSERT INTO item VALUES ("tshirt", 100, "goth"), 
-						("pants", 150, "cute"), 
-                        ("couch", 500, "goth"),
-                        ("chair", 400, "cute");
 
 CREATE TABLE clothing
 (
@@ -62,7 +54,6 @@ CREATE TABLE clothing
 		ON UPDATE CASCADE
         ON DELETE CASCADE
 );
-INSERT INTO clothing VALUES ("tshirt", 40), ("pants", 50);
 
 CREATE TABLE furniture
 (
@@ -76,7 +67,6 @@ CREATE TABLE furniture
 		ON UPDATE CASCADE
         ON DELETE CASCADE
 );
-INSERT INTO furniture VALUES ("couch", "red", "plaid"), ("chair", "white", "red");
 
 CREATE TABLE userItems
 (
