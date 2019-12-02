@@ -26,7 +26,7 @@ CREATE PROCEDURE addUser
     characterName	VARCHAR(40)
 )
 BEGIN
-	INSERT INTO users VALUES (username, pword, characterName, 0);
+	INSERT INTO users VALUES (username, pword, characterName, 0,0);
 END$$
 DELIMITER ;
 
@@ -59,11 +59,14 @@ READS SQL DATA
 BEGIN
 	DECLARE accountBal INT;
     DECLARE itemCost INT;
+    DECLARE totalItems INT;
     SET accountBal = (SELECT account_bal FROM users WHERE username = usernm);
     SET itemCost = (SELECT cost FROM item WHERE itemName = item);
+    SET totalItems = (SELECT total_items FROM users WHERE username = usernm);
 	IF itemCost <= accountBal THEN 
         INSERT INTO userItems VALUES (usernm, item);
         UPDATE users SET account_bal = accountBal - itemCost WHERE username = usernm;
+        UPDATE users SET total_items = totalItems + 1 WHERE username = usernm;
         RETURN "Item bought!";
     ELSE 
 		RETURN "You don't have enough money!";

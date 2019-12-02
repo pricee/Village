@@ -9,10 +9,10 @@ CREATE TABLE users
     character_name		VARCHAR(40)		NOT NULL,
     account_bal			INT 			NOT NULL,
     total_items 		INT 			NOT NULL,
-    CHECK (account_bal >= 0)
+    CHECK (account_bal >= 0),
     CHECK (total_items >= 0)
 );
-INSERT INTO users VALUES ("emma", "1234", "thepriceisright", 0), ("emily", "5678", "emily", 0);
+INSERT INTO users VALUES ("emma", "1234", "thepriceisright", 0,0), ("emily", "5678", "emily", 0,0);
 
 CREATE TABLE style
 (
