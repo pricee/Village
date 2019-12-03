@@ -159,7 +159,7 @@ CREATE TRIGGER subtract_total_item
 AFTER DELETE ON userItems
 FOR EACH ROW
 BEGIN
-UPDATE users
-SET total_items = total_items - 1
-WHERE username = OLD.username;
+	UPDATE users
+	SET total_items = total_items - 1
+	WHERE username = OLD.username;
 END$$
